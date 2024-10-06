@@ -5,7 +5,8 @@ import dotenv
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.executors.pool import ProcessPoolExecutor
 from logging.handlers import RotatingFileHandler
-
+from apscheduler.triggers.cron import CronTrigger
+import time
 import psycopg2
 
 loadenv = dotenv.find_dotenv()
@@ -30,6 +31,10 @@ DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 PORT=5433
 
+def heartbeat():
+    with open("heartbeat.txt", "w") as f:
+        f.write(f"Heartbeat: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        
 def conectar_db():
     try:
         conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS, port=PORT)
@@ -59,13 +64,14 @@ def tick():
         # Seu código aqui
         print('Tick! The time is: %s' % datetime.now())
         registrar_log("Tick executado com sucesso!")
+        heartbeat()
     except Exception as e:
         logging.error(f"Erro na função tick: {e}")
         registrar_log(f"Erro na função tick: {e}", nivel="ERROR")
 
 if __name__ == '__main__':
     scheduler = BlockingScheduler(executors={'default': ProcessPoolExecutor(5)})
-    scheduler.add_job(tick, 'interval', seconds=3)
+    scheduler.add_job(tick, 'interval', minutes=1)
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
     try:
