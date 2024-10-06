@@ -1,0 +1,31 @@
+# Arquivos Python compilados
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Arquivos temporários
+*~
+.*.swp
+
+# Ambiente virtual
+.venv/
+venv/
+ENV/
+
+# Logs
+*.log
+
+# Arquivos de configuração específicos do ambiente
+local_settings.py
+.env
+
+# IDE/editores de código
+.idea/
+.vscode/
+
+# Dependências
+# (geralmente é melhor gerenciar as dependências com um gerenciador de pacotes)
+# *.egg-info
+# dist/
+# build/
