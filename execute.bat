@@ -1,4 +1,4 @@
 @echo off
-start /b powershell -Command "& python 'C:\Users\victo\OneDrive\TESTE_COBRANCA_GIT\Atualiza_Metas\testeapp.py'"
+start /b powershell -Command "& python '.\apiBaseAcompanhamento.py'"
 pause
 exit

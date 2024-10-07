@@ -12,7 +12,6 @@ import psycopg2
 loadenv = dotenv.find_dotenv()
 dotenv.load_dotenv(loadenv)
 
-
 # Configuração do logging
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
