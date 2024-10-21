@@ -1,0 +1,129 @@
+2024-10-15 09:34:24,397 - ERROR - An error occurred while monitoring flow run 'f8092ac3-a878-4a54-b7a9-041254b105bb'. The flow run will not be marked as failed, but an issue may have occurred.
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\runner\runner.py", line 1049, in _submit_run_and_capture_errors
+  |     status_code = await self._run_process(
+  |                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\runner\runner.py", line 598, in _run_process
+  |     process = await run_process(
+  |               ^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\utilities\processutils.py", line 273, in run_process
+  |     await consume_process_output(
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\utilities\processutils.py", line 287, in consume_process_output
+  |     async with anyio.create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 680, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\utilities\processutils.py", line 309, in stream_text
+    |     async for item in source:
+    |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\abc\_streams.py", line 35, in __anext__
+    |     return await self.receive()
+    |            ^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\streams\text.py", line 48, in receive
+    |     decoded = self._decoder.decode(chunk)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "<frozen codecs>", line 322, in decode
+    | UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe7 in position 28: invalid continuation byte
+    +------------------------------------
+2024-10-15 09:34:24,412 - ERROR - An error occurred while monitoring flow run 'f37a7048-63cf-4b57-a822-6abb0fe07d59'. The flow run will not be marked as failed, but an issue may have occurred.
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\runner\runner.py", line 1049, in _submit_run_and_capture_errors
+  |     status_code = await self._run_process(
+  |                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\runner\runner.py", line 598, in _run_process
+  |     process = await run_process(
+  |               ^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\utilities\processutils.py", line 273, in run_process
+  |     await consume_process_output(
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\utilities\processutils.py", line 287, in consume_process_output
+  |     async with anyio.create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 680, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\prefect\utilities\processutils.py", line 309, in stream_text
+    |     async for item in source:
+    |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\abc\_streams.py", line 35, in __anext__
+    |     return await self.receive()
+    |            ^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\streams\text.py", line 48, in receive
+    |     decoded = self._decoder.decode(chunk)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "<frozen codecs>", line 322, in decode
+    | UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe7 in position 43: invalid continuation byte
+    +------------------------------------
+2024-10-15 09:34:24,676 - INFO - All deployments have been paused!
+2024-10-15 09:34:24,676 - INFO - Received KeyboardInterrupt, shutting down...
+2024-10-15 09:36:19,289 - INFO - Runner 'Atualiza_Metas' submitting flow run 'ef28dd69-e813-48b7-97ae-d13d00446d3c'
+2024-10-15 09:36:19,584 - INFO - Opening process...
+2024-10-15 09:36:19,607 - INFO - Completed submission of flow run 'ef28dd69-e813-48b7-97ae-d13d00446d3c'
+2024-10-15 09:38:03,745 - ERROR - Exception in callback SubprocessStreamProtocol.pipe_data_received(2, b'09:38:03.745 | ')
+handle: <Handle SubprocessStreamProtocol.pipe_data_received(2, b'09:38:03.745 | ')>
+Traceback (most recent call last):
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 72, in pipe_data_received
+    reader.feed_data(data)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\streams.py", line 500, in feed_data
+    assert not self._eof, 'feed_data after feed_eof'
+           ^^^^^^^^^^^^^
+AssertionError: feed_data after feed_eof
+2024-10-15 09:38:03,760 - ERROR - Exception in callback SubprocessStreamProtocol.pipe_data_received(2, b'INFO')
+handle: <Handle SubprocessStreamProtocol.pipe_data_received(2, b'INFO')>
+Traceback (most recent call last):
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 72, in pipe_data_received
+    reader.feed_data(data)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\streams.py", line 500, in feed_data
+    assert not self._eof, 'feed_data after feed_eof'
+           ^^^^^^^^^^^^^
+AssertionError: feed_data after feed_eof
+2024-10-15 09:38:03,763 - ERROR - Exception in callback SubprocessStreamProtocol.pipe_data_received(2, b"    | Task ...mpleted()\r\n")
+handle: <Handle SubprocessStreamProtocol.pipe_data_received(2, b"    | Task ...mpleted()\r\n")>
+Traceback (most recent call last):
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 72, in pipe_data_received
+    reader.feed_data(data)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\streams.py", line 500, in feed_data
+    assert not self._eof, 'feed_data after feed_eof'
+           ^^^^^^^^^^^^^
+AssertionError: feed_data after feed_eof
+2024-10-15 09:38:03,801 - ERROR - Exception in callback SubprocessStreamProtocol.pipe_data_received(2, b'09:38:03.798 | ')
+handle: <Handle SubprocessStreamProtocol.pipe_data_received(2, b'09:38:03.798 | ')>
+Traceback (most recent call last):
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 72, in pipe_data_received
+    reader.feed_data(data)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\streams.py", line 500, in feed_data
+    assert not self._eof, 'feed_data after feed_eof'
+           ^^^^^^^^^^^^^
+AssertionError: feed_data after feed_eof
+2024-10-15 09:38:03,804 - ERROR - Exception in callback SubprocessStreamProtocol.pipe_data_received(2, b"INFO    | T...ate Completed")
+handle: <Handle SubprocessStreamProtocol.pipe_data_received(2, b"INFO    | T...ate Completed")>
+Traceback (most recent call last):
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 72, in pipe_data_received
+    reader.feed_data(data)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\streams.py", line 500, in feed_data
+    assert not self._eof, 'feed_data after feed_eof'
+           ^^^^^^^^^^^^^
+AssertionError: feed_data after feed_eof
+2024-10-15 09:38:03,806 - ERROR - Exception in callback SubprocessStreamProtocol.pipe_data_received(2, b'()')
+handle: <Handle SubprocessStreamProtocol.pipe_data_received(2, b'()')>
+Traceback (most recent call last):
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\subprocess.py", line 72, in pipe_data_received
+    reader.feed_data(data)
+  File "C:\Users\92006388\AppData\Local\Programs\Python\Python312\Lib\asyncio\streams.py", line 500, in feed_data
+    assert not self._eof, 'feed_data after feed_eof'
+           ^^^^^^^^^^^^^
+AssertionError: feed_data after feed_eof

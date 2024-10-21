@@ -1,4 +1,3 @@
 @echo off
-start /b powershell -Command "& python '.\apiBaseAcompanhamento.py'"
-pause
+start /b powershell -Command "& pythonw '.\apiBaseAcompanhamento.py'"
 exit

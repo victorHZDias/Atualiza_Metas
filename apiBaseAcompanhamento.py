@@ -1,8 +1,6 @@
 import time
 import pandas as pd
-import numpy as np
 import datetime as dt
-import mysql.connector
 import os
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -11,7 +9,6 @@ from datetime import timedelta
 from pathlib import Path
 from sqlalchemy import delete,text
 from dotenv import load_dotenv
-import pytz
 from sqlalchemy import insert
 import psycopg2
 from io import StringIO
@@ -24,34 +21,21 @@ from selenium.webdriver.edge.options import Options
 # from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.common.keys import Keys
-import win32com.client as win32
-from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
-import sys
-import numpy as np
-from datetime import date
-import html5lib
 import msedgedriver
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
 import logging
 import dotenv
-from apscheduler.schedulers.blocking import BlockingScheduler
-from apscheduler.executors.pool import ProcessPoolExecutor
 from logging.handlers import RotatingFileHandler
-msedgedriver.install()
-caminho_chromedriver = "msedgedriver.exe"
-servico = Service(caminho_chromedriver)
-options = webdriver.EdgeOptions()
-# options.add_argument('--headless=new')
-options.add_argument('--ignore-certificate-errors')
-navegador = webdriver.Edge(service=servico,options=options)
-alerta=Alert(navegador)
-navegador.minimize_window()
+import requests
+import json
+from prefect import task,flow
+from datetime import timedelta, datetime
+from prefect.client.schemas.schedules import IntervalSchedule
 
-loadenv = dotenv.find_dotenv()
+caminho_env = os.path.join(os.getcwd(), "enviroments", ".env") 
+loadenv = dotenv.find_dotenv(filename=caminho_env)
+
 dotenv.load_dotenv(loadenv)
 
 horario_atual = dt.datetime.now()
@@ -65,7 +49,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Cria um handler para arquivo (opcional)
-file_handler = RotatingFileHandler('meu_app.log', maxBytes=10000, backupCount=1)
+file_handler = RotatingFileHandler('meu_app_prefect.log', maxBytes=10000, backupCount=1)
 file_handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
@@ -78,10 +62,36 @@ DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 PORT=5433
 
+@task  
 def heartbeat():
     with open("heartbeat.txt", "w") as f:
         f.write(f"Heartbeat: {time.strftime('%Y-%m-%d %H:%M:%S')}")
-        
+
+@task  
+def post_webhook(url, data):
+  """
+  Envia um POST request para um webhook.
+
+  Args:
+    url: A URL do webhook.
+    data: Um dicionário contendo os dados a serem enviados.
+
+  Returns:
+    A resposta do servidor.
+  """
+
+  headers = {'Content-type': 'application/json'}
+  payload = json.dumps(data)
+
+  try:
+    response = requests.post(url, data=payload, headers=headers,verify=False)
+    response.raise_for_status()  # Lança uma exceção para códigos de status de erro
+    return response
+  except requests.exceptions.RequestException as e:
+    print(f"Erro ao enviar POST request para o webhook: {e}")
+    return None
+  
+@task         
 def conectar_db():
     try:
         conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS, port=PORT)
@@ -90,6 +100,7 @@ def conectar_db():
         logging.error(f"Erro ao conectar ao banco de dados: {error}")
         return None
 
+@task
 def registrar_log(mensagem, nivel="INFO"):
     conn = conectar_db()
     if conn:
@@ -106,6 +117,26 @@ def registrar_log(mensagem, nivel="INFO"):
                 cursor.close()
                 conn.close()
 
+@task               
+def registrar_atu():
+    conn = conectar_db()
+    data=dt.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    if conn:
+        try:
+            cursor = conn.cursor()
+            sql = "UPDATE atualizacao VALUES SET atualizado_em= %s WHERE user_id=1 "
+            cursor.execute(sql, data)
+            conn.commit()
+            logging.info("Atualização registrada no banco de dados com sucesso.")
+        except (Exception, psycopg2.Error) as error:
+            logging.error(f"Erro ao registrar log atualização no banco de dados: {error}")
+        finally:
+            if conn:
+                cursor.close()
+                conn.close()
+        return dt.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    
+@task
 def limparDownloads():
     pasta_download = os.path.expanduser("~/Downloads")  # Caminho para a pasta Downloads
 
@@ -126,9 +157,9 @@ def limparDownloads():
     else:
         print("O caminho fornecido não é uma pasta válida.")
 
-# @task(retries=2)
+@task
 def fazer_download(navegador,matricula):  
-    
+    print(matricula)
     while len(navegador.find_elements(By.XPATH,'//*[@id="DataTables_Table_0"]')) < 1:
         time.sleep(1)
 
@@ -200,7 +231,7 @@ def fazer_download(navegador,matricula):
         # else:
         #     navegador.refresh()
 
-# @task(retries=2)
+@task
 def listaArquivos(navegador):
         
     # Aguarde até que a tabela seja carregada (você pode ajustar conforme necessário)
@@ -240,7 +271,7 @@ def listaArquivos(navegador):
                 # Adicione o link à linha correspondente no DataFrame
                 dfRel.at[index - 1, 'links'] = href if href is not None else dfRel.at[index - 1, 'links']
 
-# @task(retries=2)
+@task
 def ultimo_dia_do_mes(ano, mes):
     # Encontrar o último dia do mês
     ultimo_dia = calendar.monthrange(ano, mes)[1]
@@ -248,7 +279,7 @@ def ultimo_dia_do_mes(ano, mes):
     # Retornar a data no formato 'DD/MM/YYYY'
     return f'{ultimo_dia:02d}/{mes:02d}/{ano:04d}'
 
-# @task(retries=2)
+@task
 def inicializar_navegador(caminho_chromedriver):
 
     servico = Service(caminho_chromedriver)
@@ -262,7 +293,7 @@ def inicializar_navegador(caminho_chromedriver):
     navegador.find_element(By.XPATH,'/html/body/div/div/form/div/a/button').click()
     return navegador,alerta
 
-# @task(retries=2)
+@task
 def delRows (nomebs,dia):
     mes=dt.datetime.now().month
     conn = f"postgresql+psycopg2://postgres:Gaby030686@77.37.40.212:5433/db_cobranca"
@@ -286,7 +317,7 @@ def delRows (nomebs,dia):
                 connection.execute(text(f'delete from "{nomebs}" where extract(month from "Data_Vencimento")={mes}'))
             else:
                 connection.execute(text(f'delete from "{nomebs}" where extract(month from "criada_em")={mes}'))
-
+@task
 def enviaBD(base, nomeBase,dia):
     # Componentes da conexão
     scheme = 'postgresql' 
@@ -355,8 +386,19 @@ def enviaBD(base, nomeBase,dia):
 
         print(f"Dados inseridos com sucesso em {nomeBase}")
 
-def gerarBases(matri: str = matricula,camin: str = caminho_chromedriver):
+@flow(log_prints=True,retries=2)
+def gerarBases(matricula):
     try:
+        # time.sleep(5)
+        msedgedriver.install()
+        caminho_chromedriver = "msedgedriver.exe"
+        servico = Service(caminho_chromedriver)
+        options = webdriver.EdgeOptions()
+        # options.add_argument('--headless=new')
+        options.add_argument('--ignore-certificate-errors')
+        navegador = webdriver.Edge(service=servico,options=options)
+        alerta=Alert(navegador)
+        navegador.minimize_window()
         # servico = Service(caminho_chromedriver)
         # options = Options()
         # options = webdriver.EdgeOptions()
@@ -615,39 +657,69 @@ def gerarBases(matri: str = matricula,camin: str = caminho_chromedriver):
         hora1=dt.datetime.now().strftime("%H:%M:%S")
 
         registrar_log(f"Processo Finalizado - {hora1}")
+
+        atualizado_em=registrar_atu()
+
+        # Teste
+        # webhook_url ="https://n8n-n8n.8t1f5e.easypanel.host/webhook-test/ce0f6eed-840b-459b-89fd-c8769d1853ce"
+        
+        #Produção
+        webhook_url = "https://n8n-n8n.8t1f5e.easypanel.host/webhook/ce0f6eed-840b-459b-89fd-c8769d1853ce"
+
+        data = {
+            "mensagem": "Atualizado em: ",
+            "valor": atualizado_em
+        }
+
+        response = post_webhook(webhook_url, data)
+
+        if response:
+            print(f"Resposta do webhook: {response.status_code} - {response.text}")
+
         heartbeat()
         navegador.close()
+        # scheduler = BlockingScheduler(executors={'default': ProcessPoolExecutor(6)})
+        # scheduler.reschedule_job('gerarBases', trigger='interval', minutes=60,job_id="meu_aprov")
+
     except Exception as e:
         logging.error(f"Erro na função: {e}")
         registrar_log(f"Erro na função: {e}", nivel="ERROR")
-        raise
+        # time.sleep(3)
+        # scheduler = BlockingScheduler(executors={'default': ProcessPoolExecutor(6)})
+        # scheduler.reschedule_job( 
+        # job_id="meu_aprov",
+        # trigger='interval',
+        # hours=1)
 
 if __name__ == "__main__":
-    scheduler = BlockingScheduler(executors={'default': ProcessPoolExecutor(5)})
-    scheduler.add_job(gerarBases, 'interval', minutes=1)
-                 
-    print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+    gerarBases.serve(name="Atualiza_Metas",
+                    parameters={"matricula": os.getlogin()},
+        tags=["atualiza_metas"],
+        schedules=[
+            IntervalSchedule(
+            interval=timedelta(minutes=60))]
+    )
 
-    try:
-        scheduler.start()
-    except (KeyboardInterrupt, SystemExit):
-        pass
 
-    # matricula = input("Digite sua matrícula: ")
-    # gerarBases.serve(name="Atualiza_Acompanhamento",
-    # parameters={"camin": caminho_chromedriver},
-    # tags=["acompanhamento"],
-    # pause_on_shutdown=False,
-    # interval=3600)
-    
-    # Adicionar a tarefa periódica
-    # # scheduler.add_job(minha_tarefa_periodica, 'interval', minutes=30, args=[matricula])
-    
+    # scheduler = BlockingScheduler(executors={'default': ProcessPoolExecutor(6)})
+
+    # Adiciona a tarefa com um tempo de tolerância de 1 hora
+    # scheduler.add_job(
+    #     gerarBases, 
+    #     'interval', 
+    #     hours=1, 
+    #     id="meu_aprov", 
+    #     misfire_grace_time=3600  # 1 hora em segundos
+    # )
+
+    # print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+
     # try:
+    #     # Executa a função gerarBases imediatamente
+    #     gerarBases() 
     #     scheduler.start()
-    # except Exception as e:
-    #     print(f"Erro no scheduler: {e}")
-
+    # except (KeyboardInterrupt, SystemExit):
+    #     pass
 
     
 
